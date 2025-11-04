@@ -21,12 +21,14 @@ import { Avatar, AvatarImage, AvatarFallback } from "./components/ui/avatar";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "./components/ui/dropdown-menu";
 import { Collapsible, CollapsibleTrigger, CollapsibleContent } from "./components/ui/collapsible";
 import { useState, useEffect } from "react";
+import { HashRouter, useNavigate, Routes, Route } from "react-router";
+import HomePage from '@/pages/Home';
+import LoginPage from '@/pages/Login';
 
 // Menu items.
 const data = [
   {
     title: "Home",
-    url: "#",
     icon: Home,
     items: [
       {
@@ -43,7 +45,7 @@ const data = [
   },
   {
     title: "Inbox",
-    url: "#",
+    url: "/home",
     icon: Inbox,
   },
   {
@@ -65,6 +67,7 @@ const data = [
 
 // 创建一个内部组件来使用useSidebar hook
 function SidebarContentWrapper() {
+  let navigate = useNavigate();
   const { open } = useSidebar()
   const [activeKey, setActiveKey] = useState()
   const [collapsibleStates, setCollapsibleStates] = useState([])
@@ -130,7 +133,10 @@ function SidebarContentWrapper() {
                                 <SidebarMenuItem
                                   key={subItem.title}
                                   className={`mb-2 px-2 py-2 rounded-lg cursor-pointer hover:bg-purple-400 hover:text-white! ${activeKey === subItem.title ? 'bg-purple-700! text-white!' : ''}`}
-                                  onClick={() => setActiveKey(subItem.title)}
+                                  onClick={() => {
+                                    setActiveKey(subItem.title)
+                                    navigate(subItem.url)
+                                  }}
                                 >
                                   <div className={'flex items-center space-x-3 pl-10 truncate'}>
                                     <span className="text-sm">{subItem.title}</span>
@@ -146,7 +152,10 @@ function SidebarContentWrapper() {
                     return <SidebarMenuItem key={item.title}>
                       <SidebarMenuButton asChild
                         className={`h-10 hover:bg-purple-400 hover:text-white cursor-pointer pl-6.5 ${activeKey === item.title ? 'bg-purple-700 text-white' : ''} ${!open ? 'ml-1' : ''}`}>
-                        <div href={item.url} className="flex flex-row" onClick={() => setActiveKey(item.title)}>
+                        <div href={item.url} className="flex flex-row" onClick={() => {
+                          setActiveKey(item.title)
+                          navigate(item.url)
+                        }}>
                           <item.icon />
                           <span className="ml-2 content-center">{item.title}</span>
                         </div>
@@ -179,7 +188,15 @@ function SidebarContentWrapper() {
         </SidebarFooter>
       </Sidebar>
       <SidebarInset>
-
+        <Routes>
+          <Route path='/' Component={LoginPage} />
+          <Route path='/login' Component={LoginPage} />
+          <Route path='/*' element={
+            <SidebarProvider>
+              <SidebarContentWrapper />
+            </SidebarProvider>
+          } />
+        </Routes>
       </SidebarInset>
     </>
   )
@@ -187,8 +204,16 @@ function SidebarContentWrapper() {
 
 export default function App() {
   return (
-    <SidebarProvider>
-      <SidebarContentWrapper />
-    </SidebarProvider>
+    <HashRouter>
+      <Routes>
+        <Route path='/' Component={LoginPage} />
+        <Route path='/login' Component={LoginPage} />
+        <Route path='/*' element={
+          <SidebarProvider>
+            <SidebarContentWrapper />
+          </SidebarProvider>
+        } />
+      </Routes>
+    </HashRouter>
   )
 }
